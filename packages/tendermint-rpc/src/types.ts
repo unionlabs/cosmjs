@@ -13,10 +13,15 @@ export interface ValidatorSecp256k1Pubkey {
   readonly data: Uint8Array;
 }
 
+export interface ValidatorBn254Pubkey {
+  readonly algorithm: "Bn254";
+  readonly data: Uint8Array;
+}
+
 /**
  * Union type for different possible pubkeys.
  */
-export type ValidatorPubkey = ValidatorEd25519Pubkey | ValidatorSecp256k1Pubkey;
+export type ValidatorPubkey = ValidatorEd25519Pubkey | ValidatorSecp256k1Pubkey | ValidatorBn254Pubkey;
 
 export enum BlockIdFlag {
   Unknown = 0,
