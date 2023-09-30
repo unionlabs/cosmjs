@@ -14,7 +14,7 @@ export interface ValidatorSecp256k1Pubkey {
 }
 
 export interface ValidatorBn254Pubkey {
-  readonly algorithm: "Bn254";
+  readonly algorithm: "bn254";
   readonly data: Uint8Array;
 }
 
