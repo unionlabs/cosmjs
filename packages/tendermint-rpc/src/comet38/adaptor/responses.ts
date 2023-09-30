@@ -185,7 +185,10 @@ function decodePubkey(data: RpcPubkey): ValidatorPubkey {
   if ("Sum" in data) {
     // we don't need to check type because we're checking algorithm
     const [[algorithm, value]] = Object.entries(data.Sum.value);
-    assert(algorithm === "ed25519" || algorithm === "secp256k1", `unknown pubkey type: ${algorithm}`);
+    assert(
+      algorithm === "ed25519" || algorithm === "secp256k1" || algorithm === "bn254",
+      `unknown pubkey type: ${algorithm}`,
+    );
     return {
       algorithm,
       data: fromBase64(assertNotEmpty(value)),
@@ -193,6 +196,11 @@ function decodePubkey(data: RpcPubkey): ValidatorPubkey {
   } else {
     switch (data.type) {
       // go-amino special code
+      case "tendermint/PubKeyBn254":
+        return {
+          algorithm: "bn254",
+          data: fromBase64(assertNotEmpty(data.value)),
+        };
       case "tendermint/PubKeyEd25519":
         return {
           algorithm: "ed25519",
