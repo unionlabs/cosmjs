@@ -165,26 +165,26 @@ function decodeTxData(data: RpcTxData): responses.TxData {
 
 type RpcPubkey =
   | {
-      readonly type: string;
-      /** base64 encoded */
-      readonly value: string;
-    }
+    readonly type: string;
+    /** base64 encoded */
+    readonly value: string;
+  }
   | {
-      // See: https://github.com/cosmos/cosmjs/issues/1142
-      readonly Sum: {
-        readonly type: string;
-        readonly value: {
-          /** base64 encoded */
-          [algorithm: string]: string;
-        };
+    // See: https://github.com/cosmos/cosmjs/issues/1142
+    readonly Sum: {
+      readonly type: string;
+      readonly value: {
+        /** base64 encoded */
+        [algorithm: string]: string;
       };
     };
+  };
 
 function decodePubkey(data: RpcPubkey): ValidatorPubkey {
   if ("Sum" in data) {
     // we don't need to check type because we're checking algorithm
     const [[algorithm, value]] = Object.entries(data.Sum.value);
-    assert(algorithm === "ed25519" || algorithm === "secp256k1", `unknown pubkey type: ${algorithm}`);
+    assert(algorithm === "ed25519" || algorithm === "secp256k1" || algorithm === "bn254", `unknown pubkey type: ${algorithm}`);
     return {
       algorithm,
       data: fromBase64(assertNotEmpty(value)),
@@ -200,6 +200,16 @@ function decodePubkey(data: RpcPubkey): ValidatorPubkey {
       case "tendermint/PubKeySecp256k1":
         return {
           algorithm: "secp256k1",
+          data: fromBase64(assertNotEmpty(data.value)),
+        };
+      case "tendermint/PubKeyBn254":
+        return {
+          algorithm: "bn254",
+          data: fromBase64(assertNotEmpty(data.value)),
+        };
+      case "cometbft/PubKeyBn254":
+        return {
+          algorithm: "bn254",
           data: fromBase64(assertNotEmpty(data.value)),
         };
       default:
