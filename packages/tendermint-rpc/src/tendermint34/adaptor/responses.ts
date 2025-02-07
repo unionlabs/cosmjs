@@ -113,17 +113,10 @@ interface RpcAttribute {
 }
 
 function decodeAttribute(attribute: RpcAttribute): responses.Attribute {
-  try {
-    return {
-      key: fromBase64(assertNotEmpty(attribute.key)),
-      value: fromBase64(assertString(attribute.value ?? "")),
-    };
-  } catch {
-    return {
-      key: new Uint8Array(),
-      value: new Uint8Array(),
-    };
-  }
+  return {
+    key: fromBase64(assertNotEmpty(attribute.key)),
+    value: fromBase64(assertString(attribute.value ?? "")),
+  };
 }
 
 function decodeAttributes(attributes: readonly RpcAttribute[]): responses.Attribute[] {
