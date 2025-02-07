@@ -1,0 +1,75 @@
+name: 'Publish NPM Package'
+
+on:
+  push:
+    branches:
+      - 'main'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  ACTIONS_RUNNER_DEBUG: true
+  NODE_OPTIONS: '--no-warnings'
+
+jobs:
+  publish-sdk:
+    name: 'Publish to Registries'
+    runs-on: ['ubuntu-latest']
+    permissions:
+      contents: read
+      # The OIDC ID token is used for authentication with JSR.
+      id-token: write
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v4
+
+      - name: 'Setup bun'
+        uses: oven-sh/setup-bun@main
+        with:
+          bun-version: 'latest'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: 'Install Dependencies'
+        run: bun install
+
+      - name: 'Build'
+        run: |
+          # build @cosmjs/amino
+          bun --filter='@cosmjs/crypto' run build
+          bun --filter='@cosmjs/amino' run build
+
+          # build @unionlabs/tendermint-rpc (@cosmjs/tendermint-rpc)
+          bun --filter='@cosmjs/json-rpc' run build
+          bun --filter='@cosmjs/socket' run build
+          bun --filter='@unionlabs/tendermint-rpc' run build
+
+      - name: 'Publish @unionlabs/amino'
+        working-directory: 'packages/amino'
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          BUN_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NPM_CONFIG_TOKEN=${{ secrets.NPM_TOKEN }} bun publish --access='public' --no-git-tags
+
+      - name: 'Publish @unionlabs/tendermint-rpc'
+        working-directory: 'packages/tendermint-rpc'
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          BUN_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NPM_CONFIG_TOKEN=${{ secrets.NPM_TOKEN }} bun publish --access='public' --no-git-tags

@@ -36,3 +36,6 @@ coverage/
 # We are not using yarn's deferred versioning for now (see https://yarnpkg.com/features/release-workflow)
 # !.yarn/versions
 _
+.direnv
+.env
+!.env.example

@@ -1,5 +1,5 @@
 {
-  "name": "@cosmjs/tendermint-rpc",
+  "name": "@unionlabs/tendermint-rpc",
   "version": "0.33.0",
   "description": "Tendermint RPC clients",
   "contributors": [
