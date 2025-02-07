@@ -1,5 +1,5 @@
 {
-  "name": "@cosmjs/amino",
+  "name": "@unionlabs/amino",
   "version": "0.33.0",
   "description": "Helpers for Amino based signing.",
   "contributors": [
